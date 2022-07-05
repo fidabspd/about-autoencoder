@@ -1,7 +1,7 @@
 import torch
 
 
-class Encoder(torch.nn.Module):
+class CVAEEncoder(torch.nn.Module):
     
     def __init__(self, cond_emb_dim, in_ch, hidden_ch, kernel_size, latent_dim, n_condition_labels, img_size):
         super().__init__()
@@ -21,10 +21,11 @@ class Encoder(torch.nn.Module):
         return mu, sigma
     
     
-class Decoder(torch.nn.Module):
+class CVAEDecoder(torch.nn.Module):
     
     def __init__(self, cond_emb_dim, latent_dim, hidden_ch, kernel_size, out_ch, n_condition_labels, img_size):
         super().__init__()
+        self.latent_dim = latent_dim
         self.hidden_ch = hidden_ch
         self.img_size = img_size
         self.condition_emb = torch.nn.Embedding(n_condition_labels, cond_emb_dim)
@@ -42,13 +43,13 @@ class Decoder(torch.nn.Module):
         return x_hat
 
 
-class VariationalAutoEncoder(torch.nn.Module):
+class ConditionalVariationalAutoEncoder(torch.nn.Module):
     
     def __init__(self, cond_emb_dim, in_ch, latent_dim, hidden_ch, kernel_size, n_condition_labels, img_size):
         super().__init__()
         self.latent_dim = latent_dim
-        self.encoder = Encoder(cond_emb_dim, in_ch, hidden_ch, kernel_size, latent_dim, n_condition_labels, img_size)
-        self.decoder = Decoder(cond_emb_dim, latent_dim, hidden_ch, kernel_size, in_ch, n_condition_labels, img_size)
+        self.encoder = CVAEEncoder(cond_emb_dim, in_ch, hidden_ch, kernel_size, latent_dim, n_condition_labels, img_size)
+        self.decoder = CVAEDecoder(cond_emb_dim, latent_dim, hidden_ch, kernel_size, in_ch, n_condition_labels, img_size)
 
     def reparameterize(self, mu, sigma):
         epsilon = torch.randn(self.latent_dim).to(mu.device)
@@ -60,16 +61,3 @@ class VariationalAutoEncoder(torch.nn.Module):
         z = self.reparameterize(mu, sigma)
         x_hat = self.decoder(z, condition)
         return x_hat, mu, sigma
-
-
-class NegativeELBO(torch.nn.Module):
-    
-    def __init__(self):
-        super().__init__()
-        
-    def forward(self, x, x_hat, mu, sigma):
-        likelihood = torch.mean(x * torch.log(x_hat) + (1 - x) * torch.log(1 - x_hat))
-        kl_divergence = 0.5 * torch.mean(torch.square(mu) + torch.square(sigma) - torch.log(1e-8 + torch.square(sigma)) - 1)
-        elbo = (likelihood - kl_divergence)
-        negative_elbo = -elbo
-        return negative_elbo, likelihood, kl_divergence
