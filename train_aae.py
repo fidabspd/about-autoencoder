@@ -1,9 +1,12 @@
+import os
 from tqdm import tqdm
 import torch
 import torchvision.transforms as transforms
 from torchvision.datasets import MNIST
 from network.aae import AdversarialAutoEncoder, Discriminator
 from network.loss import LogLikelihood, DiscriminatorLoss, GeneratorLoss
+
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 
 def train_model(aae, discriminator, train_dl, optim_aae, optim_disc,
