@@ -67,8 +67,8 @@ def main():
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     BATCH_SIZE = 64
-    LEARNING_RATE = 0.0005
-    N_EPOCHS = 3
+    LEARNING_RATE = 0.001
+    N_EPOCHS = 5
 
     COND_EMB_DIM = 16
     IN_CH = 1
@@ -77,9 +77,10 @@ def main():
     LATENT_DIM = 32
     N_CONDITION_LABELS = 10
     IMG_SIZE = 28
+    LOSS_SCALE = 100
 
-    MODE = 'cvae'
-    MODEL_FILE_PATH = f'./{MODE}.pt' 
+    MODE = 'vae'
+    MODEL_FILE_PATH = f'./{MODE}.pt'
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
@@ -93,15 +94,15 @@ def main():
     if MODE == 'ae':
         model = AutoEncoder(
             IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
-        criterion = LogLikelihood()
+        criterion = LogLikelihood(LOSS_SCALE)
     elif MODE == 'vae':
         model = VariationalAutoEncoder(
             IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
-        criterion = ELBO()
+        criterion = ELBO(LOSS_SCALE)
     elif MODE == 'cvae':
         model = ConditionalVariationalAutoEncoder(
             COND_EMB_DIM, IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, N_CONDITION_LABELS, IMG_SIZE)
-        criterion = ELBO()
+        criterion = ELBO(LOSS_SCALE)
 
     # Train
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
