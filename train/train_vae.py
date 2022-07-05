@@ -62,14 +62,13 @@ def main():
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
+    MNIST_DIR = "../MNIST_DATASET"
     MODEL_FILE_PATH = "../model/vae.pt"
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
     ])
-
-    download_root = './MNIST_DATASET'
-    dataset = MNIST(download_root, transform=mnist_transform, train=True, download=True)
+    dataset = MNIST(MNIST_DIR, transform=mnist_transform, train=True, download=True)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
