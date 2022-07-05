@@ -3,20 +3,12 @@ import torch
 import torchvision.transforms as transforms
 from torchvision.datasets import MNIST
 from ae import AutoEncoder
-from vae import VariationalAutoEncoder
-from cvae import ConditionalVariationalAutoEncoder
-from loss import LogLikelihood, ELBO
+from loss import LogLikelihood
 
 
-def train_model(model, mode, train_dl, optimizer, criterion, n_epochs, device, model_file_path):
-
-    valid_mode = ["ae", "vae", "cvae"]
-    if mode not in valid_mode:
-        raise ValueError(f"'mode' must be one of {valid_mode}")
+def train_model(model, train_dl, optimizer, criterion, n_epochs, device, model_file_path):
 
     def train_one_epoch(model, dl, optimizer, criterion, device):
-
-        nonlocal mode
 
         n_data = len(dl.dataset)
         train_loss = 0
@@ -25,24 +17,17 @@ def train_model(model, mode, train_dl, optimizer, criterion, n_epochs, device, m
         model.train()
         pbar = tqdm(dl)
         for batch in pbar:
-            x, condition = batch
-            x, condition = x.to(device), condition.unsqueeze(1).to(device)
+            x, _ = batch
+            x = x.to(device)
             now_batch_len = len(x)
             n_processed_data += now_batch_len
 
-            if mode == "ae":
-                x_hat = model(x)
-                loss = criterion(x, x_hat)
-            elif mode == "vae":
-                x_hat, mu, sigma = model(x)
-                loss, _, _ = criterion(x, x_hat, mu, sigma)
-            elif mode == "cvae":
-                x_hat, mu, sigma = model(x, condition)
-                loss, _, _ = criterion(x, x_hat, mu, sigma)
+            optimizer.zero_grad()
+            x_hat = model(x)
+            loss = criterion(x, x_hat)
             loss = -loss
             train_loss += loss.item()/n_data
 
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
@@ -70,17 +55,14 @@ def main():
     LEARNING_RATE = 0.001
     N_EPOCHS = 5
 
-    COND_EMB_DIM = 16
     IN_CH = 1
     HIDDEN_CH = 16
     KERNEL_SIZE = 3
     LATENT_DIM = 32
-    N_CONDITION_LABELS = 10
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
-    MODE = 'vae'
-    MODEL_FILE_PATH = f'./{MODE}.pt'
+    MODEL_FILE_PATH = "./ae.pt"
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
@@ -90,23 +72,16 @@ def main():
     dataset = MNIST(download_root, transform=mnist_transform, train=True, download=True)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
-    # Model & Loss
-    if MODE == 'ae':
-        model = AutoEncoder(
-            IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
-        criterion = LogLikelihood(LOSS_SCALE)
-    elif MODE == 'vae':
-        model = VariationalAutoEncoder(
-            IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
-        criterion = ELBO(LOSS_SCALE)
-    elif MODE == 'cvae':
-        model = ConditionalVariationalAutoEncoder(
-            COND_EMB_DIM, IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, N_CONDITION_LABELS, IMG_SIZE)
-        criterion = ELBO(LOSS_SCALE)
+    # Model
+    model = AutoEncoder(
+        IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
+
+    # Loss
+    criterion = LogLikelihood(LOSS_SCALE)
 
     # Train
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    train_model(model, MODE, dataloader, optimizer, criterion, N_EPOCHS, DEVICE, MODEL_FILE_PATH)
+    train_model(model, dataloader, optimizer, criterion, N_EPOCHS, DEVICE, MODEL_FILE_PATH)
 
 
 if __name__ == '__main__':
