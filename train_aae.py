@@ -98,7 +98,7 @@ def main():
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
-    MNIST_DIR = "../MNIST_DATASET"
+    MNIST_DIR = "./MNIST_DATASET"
     AAE_FILE_PATH = "../model/aae.pt"
     DISCRIMINATOR_FILE_PATH = "../model/discriminator.pt"
 

@@ -62,7 +62,7 @@ def main():
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
-    MNIST_DIR = "../MNIST_DATASET"
+    MNIST_DIR = "./MNIST_DATASET"
     MODEL_FILE_PATH = "../model/vae.pt"
 
     mnist_transform = transforms.Compose([
