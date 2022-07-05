@@ -2,8 +2,8 @@ from tqdm import tqdm
 import torch
 import torchvision.transforms as transforms
 from torchvision.datasets import MNIST
-from vae import VariationalAutoEncoder
-from loss import ELBO
+from network.vae import VariationalAutoEncoder
+from network.loss import ELBO
 
 
 def train_model(model, train_dl, optimizer, criterion, n_epochs, device, model_file_path):
@@ -62,7 +62,7 @@ def main():
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
-    MODEL_FILE_PATH = "./vae.pt"
+    MODEL_FILE_PATH = "../model/vae.pt"
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
