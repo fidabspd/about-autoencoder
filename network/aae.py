@@ -58,6 +58,6 @@ class Discriminator(torch.nn.Module):
         self.linear_out = torch.nn.Linear(hidden_dim, out_dim)
         
     def forward(self, z):
-        probs = torch.relu(self.linear_in(z))
-        probs = torch.sigmoid(self.linear_out(probs))
+        z = torch.relu(self.linear_in(z))
+        probs = torch.sigmoid(self.linear_out(z))
         return probs
