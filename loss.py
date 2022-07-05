@@ -35,3 +35,30 @@ class ELBO(torch.nn.Module):
         _kl_divergence = self.kl_divergence(mu, sigma)
         elbo = _log_likelihood - _kl_divergence
         return elbo, _log_likelihood, _kl_divergence
+
+
+class DiscriminatorLoss(torch.nn.Module):
+    
+    def __init__(self, scale=1.):
+        super().__init__()
+        self.scale = scale
+        self.bce_loss = torch.nn.BCELoss()
+        
+    def forward(self, real_disc_probs, fake_disc_probs):
+        real_loss = self.bce_loss(real_disc_probs, torch.ones_like(real_disc_probs))
+        fake_loss = self.bce_loss(fake_disc_probs, torch.zeros_like(fake_disc_probs))
+        discriminator_loss = (real_loss + fake_loss) * self.scale
+        return discriminator_loss
+
+
+class GeneratorLoss(torch.nn.Module):
+
+    def __init__(self, scale=1.):
+        super().__init__()
+        self.scale = scale
+        self.bce_loss = torch.nn.BCELoss()
+        
+    def forward(self, fake_disc_probs):
+        generator_loss = self.bce_loss(fake_disc_probs, torch.ones_like(fake_disc_probs))
+        generator_loss = generator_loss * self.scale
+        return generator_loss
