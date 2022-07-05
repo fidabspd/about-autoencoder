@@ -76,9 +76,8 @@ def train_model(aae, discriminator, train_dl, optim_aae, optim_disc,
             aae, discriminator, train_dl, optim_aae, optim_disc,
             optim_gen, log_likelihood, disc_loss, gen_loss, device
         )
-
-    torch.save(aae, aae_file_path)
-    torch.save(discriminator, discriminator_file_path)
+        torch.save(aae, aae_file_path)
+        torch.save(discriminator, discriminator_file_path)
 
 
 def main():
@@ -99,8 +98,8 @@ def main():
     LOSS_SCALE = 100
 
     MNIST_DIR = "./MNIST_DATASET"
-    AAE_FILE_PATH = "../model/aae.pt"
-    DISCRIMINATOR_FILE_PATH = "../model/discriminator.pt"
+    AAE_FILE_PATH = "./model/aae.pt"
+    DISCRIMINATOR_FILE_PATH = "./model/discriminator.pt"
 
 
     mnist_transform = transforms.Compose([

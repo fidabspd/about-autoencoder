@@ -43,9 +43,8 @@ def train_model(model, train_dl, optimizer, criterion, n_epochs, device, model_f
 
         print(f'\nEpoch: {epoch+1}/{n_epochs}')
         train_loss = train_one_epoch(model, train_dl, optimizer, criterion, device)
-
-    torch.save(model, model_file_path)
-
+        torch.save(model, model_file_path)
+    
 
 def main():
 
@@ -65,7 +64,7 @@ def main():
     LOSS_SCALE = 100
 
     MNIST_DIR = "./MNIST_DATASET"
-    MODEL_FILE_PATH = "../model/cvae.pt"
+    MODEL_FILE_PATH = "./model/cvae.pt"
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
