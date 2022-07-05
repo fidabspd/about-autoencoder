@@ -1,21 +1,30 @@
 import torch
 
 
-def reconstruct(vae, x, condition, device):
+def reconstruct(model, x, condition=None, output_only_x=False):
     
-    x, condition = x[:1].to(device), condition[:1].unsqueeze(1).to(device)
-    x_hat, _, _ = vae(x, condition)
+    if condition is None:
+        x_hat = model(x)
+    else:
+        x_hat = model(x, condition)
+    if not output_only_x:
+        x_hat = x_hat[0]
     x = x.detach().cpu().numpy().squeeze().squeeze()
     x_hat = x_hat.detach().cpu().numpy().squeeze().squeeze()
         
-    return x_hat
+    return x, x_hat
 
 
-def generate(vae, condition, device):
+def generate(generator, image_size, condition=None):
 
-    z_for_gen = torch.randn(1, vae.latent_dim).to(device)
-    condition_for_gen = torch.LongTensor([[condition]]).to(device)
-    gen_result = vae.decoder(z_for_gen, condition_for_gen)
-    gen_result = gen_result.detach().cpu().numpy().reshape(28, 28)
+    device = 'cuda' if next(generator.parameters()).is_cuda else 'cpu'
+
+    z = torch.randn(1, generator.latent_dim).to(device)
+    if condition is None:
+        gen_result = generator(z)
+    else:
+        condition = torch.LongTensor([[condition]]).to(device)
+        gen_result = generator(z, condition)
+    gen_result = gen_result.detach().cpu().numpy().reshape(image_size, image_size)
 
     return gen_result
