@@ -11,9 +11,29 @@ class AAEEncoder(torch.nn.Module):
         self.linear_out = torch.nn.Linear(hidden_ch*2*img_size*img_size, latent_dim)
 
     def forward(self, x):
+        check = torch.sum(torch.isnan(x)).item()
+        if check > 0:
+            print('\n', check, x)
+            raise ValueError("There is nan.")
+
         x = torch.relu(self.conv0(x))
+        check = torch.sum(torch.isnan(x)).item()
+        if check > 0:
+            print('\n', check, x)
+            raise ValueError("There is nan.")
+
         x = torch.relu(self.conv1(x)).flatten(1)
+        check = torch.sum(torch.isnan(x)).item()
+        if check > 0:
+            print('\n', check, x)
+            raise ValueError("There is nan.")
+
         z = self.linear_out(x)
+        check = torch.sum(torch.isnan(z)).item()
+        if check > 0:
+            print('\n', check, z)
+            raise ValueError("There is nan.")
+
         return z
     
     
