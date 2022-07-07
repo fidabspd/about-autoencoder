@@ -1,3 +1,4 @@
+import os
 from tqdm import tqdm
 import torch
 import torchvision.transforms as transforms
@@ -63,6 +64,9 @@ def main():
 
     MNIST_DIR = "./MNIST_DATASET"
     MODEL_FILE_PATH = "./model/ae.pt"
+
+    if not os.path.exists(os.path.dirname(MODEL_FILE_PATH)):
+        os.mkdir(os.path.dirname(MODEL_FILE_PATH))
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
