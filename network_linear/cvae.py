@@ -33,7 +33,7 @@ class CVAEDecoder(torch.nn.Module):
         
     def forward(self, z, condition):
         cond_emb = self.condition_emb(condition).flatten(1)
-        z_c = torch.cat([z, cond_emb], 1)
+        z_c = torch.cat([z, cond_emb], -1)
         z_c = torch.relu(self.linear_in(z_c))
         z_c = torch.relu(self.linear_hidden(z_c))
         x_hat = torch.sigmoid(self.linear_out(z_c))
