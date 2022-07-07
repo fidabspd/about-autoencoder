@@ -41,12 +41,11 @@ class VariationalAutoEncoder(torch.nn.Module):
     
     def __init__(self, in_ch, latent_dim, hidden_ch, kernel_size, img_size):
         super().__init__()
-        self.latent_dim = latent_dim
         self.encoder = VAEEncoder(in_ch, hidden_ch, kernel_size, latent_dim, img_size)
         self.decoder = VAEDecoder(latent_dim, hidden_ch, kernel_size, in_ch, img_size)
 
     def reparameterize(self, mu, sigma):
-        epsilon = torch.randn(self.latent_dim).to(mu.device)
+        epsilon = torch.randn_like(mu).to(mu.device)
         z = mu + sigma * epsilon
         return z
         

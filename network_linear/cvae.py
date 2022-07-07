@@ -44,13 +44,12 @@ class ConditionalVariationalAutoEncoder(torch.nn.Module):
     
     def __init__(self, cond_emb_dim, in_dim, latent_dim, hidden_dim, n_condition_labels, img_size):
         super().__init__()
-        self.latent_dim = latent_dim
         self.img_size = img_size
         self.encoder = CVAEEncoder(cond_emb_dim, in_dim, hidden_dim, latent_dim, n_condition_labels)
         self.decoder = CVAEDecoder(cond_emb_dim, latent_dim, hidden_dim, in_dim, n_condition_labels)
 
     def reparameterize(self, mu, sigma):
-        epsilon = torch.randn(self.latent_dim).to(mu.device)
+        epsilon = torch.randn_like(mu).to(mu.device)
         z = mu + sigma * epsilon
         return z
         
