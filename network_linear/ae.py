@@ -45,5 +45,5 @@ class AutoEncoder(torch.nn.Module):
         x = x.flatten(1)
         z = self.encoder(x)
         x_hat = self.decoder(z)
-        x_hat = x_hat.reshape((-1, self.img_size, self.img_size))
+        x_hat = x_hat.reshape((-1, 1, self.img_size, self.img_size))
         return x_hat
