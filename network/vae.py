@@ -53,4 +53,5 @@ class VariationalAutoEncoder(torch.nn.Module):
         mu, sigma = self.encoder(x)
         z = self.reparameterize(mu, sigma)
         x_hat = self.decoder(z)
+        x_hat = x_hat.clamp(1e-8, 1-1e-8)
         return x_hat, mu, sigma

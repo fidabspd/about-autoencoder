@@ -59,4 +59,5 @@ class ConditionalVariationalAutoEncoder(torch.nn.Module):
         mu, sigma = self.encoder(x, condition)
         z = self.reparameterize(mu, sigma)
         x_hat = self.decoder(z, condition)
+        x_hat = x_hat.clamp(1e-8, 1-1e-8)
         return x_hat, mu, sigma

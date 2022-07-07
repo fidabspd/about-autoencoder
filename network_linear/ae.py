@@ -46,4 +46,5 @@ class AutoEncoder(torch.nn.Module):
         z = self.encoder(x)
         x_hat = self.decoder(z)
         x_hat = x_hat.reshape((-1, 1, self.img_size, self.img_size))
+        x_hat = x_hat.clamp(1e-8, 1-1e-8)
         return x_hat

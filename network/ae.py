@@ -47,4 +47,5 @@ class AutoEncoder(torch.nn.Module):
     def forward(self, x):
         z = self.encoder(x)
         x_hat = self.decoder(z)
+        x_hat = x_hat.clamp(1e-8, 1-1e-8)
         return x_hat
