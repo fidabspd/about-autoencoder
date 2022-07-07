@@ -107,6 +107,8 @@ def main():
 
     if not os.path.exists(os.path.dirname(AAE_FILE_PATH)):
         os.mkdir(os.path.dirname(AAE_FILE_PATH))
+    if not os.path.exists(os.path.dirname(DISCRIMINATOR_FILE_PATH)):
+        os.mkdir(os.path.dirname(DISCRIMINATOR_FILE_PATH))
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
@@ -115,8 +117,7 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    aae = AdversarialAutoEncoder(
-        IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
+    aae = AdversarialAutoEncoder(IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
     discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM)
 
     # Loss
