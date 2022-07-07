@@ -1,3 +1,3 @@
-# Conditional Variational Auto Encoder
+# About AutoEncoder
 
-CVAE tutorial using MNIST
+Tutorial using MNIST
