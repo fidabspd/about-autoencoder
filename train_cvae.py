@@ -66,6 +66,9 @@ def main():
     MNIST_DIR = "./MNIST_DATASET"
     MODEL_FILE_PATH = "./model/cvae.pt"
 
+    if not os.path.exists(os.path.dirname(MODEL_FILE_PATH)):
+        os.mkdir(os.path.dirname(MODEL_FILE_PATH))
+
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
     ])

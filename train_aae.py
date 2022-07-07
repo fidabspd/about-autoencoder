@@ -104,6 +104,10 @@ def main():
     AAE_FILE_PATH = "./model/aae.pt"
     DISCRIMINATOR_FILE_PATH = "./model/discriminator.pt"
 
+    if not os.path.exists(os.path.dirname(AAE_FILE_PATH)):
+        os.mkdir(os.path.dirname(AAE_FILE_PATH))
+    if not os.path.exists(os.path.dirname(DISCRIMINATOR_FILE_PATH)):
+        os.mkdir(os.path.dirname(DISCRIMINATOR_FILE_PATH))
 
     mnist_transform = transforms.Compose([
         transforms.ToTensor()
