@@ -17,7 +17,7 @@ class CVAEEncoder(torch.nn.Module):
         x_c = torch.relu(self.linear_in(x_c))
         x_c = torch.relu(self.linear_hidden(x_c))
         x_c = self.linear_out(x_c)
-        mu, sigma = x_c[:, :self.latent_dim], torch.exp(x_c[:, self.latent_dim:])
+        mu, sigma = x_c[:, :self.latent_dim], 1e-6+torch.nn.functional.softplus(x_c[:, self.latent_dim:])
         return mu, sigma
     
     

@@ -14,7 +14,7 @@ class VAEEncoder(torch.nn.Module):
         x = torch.relu(self.conv0(x))
         x = torch.relu(self.conv1(x)).flatten(1)
         x = self.linear_out(x)
-        mu, sigma = x[:, :self.latent_dim], torch.exp(x[:, self.latent_dim:])
+        mu, sigma = x[:, :self.latent_dim], 1e-6+torch.nn.functional.softplus(x[:, self.latent_dim:])
         return mu, sigma
     
     
