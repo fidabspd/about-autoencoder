@@ -91,12 +91,11 @@ def main():
     LEARNING_RATE = 0.001
     N_EPOCHS = 20
 
-    IN_CH = 1
-    HIDDEN_CH = 16
-    KERNEL_SIZE = 3
+    IN_DIM = 1*28*28
+    HIDDEN_DIM = 64
     LATENT_DIM = 32
-    DISC_HIDDEN_DIM = 32
-    DISC_OUT_DIM = 64
+    DISC_HIDDEN_DIM = 64
+    DISC_OUT_DIM = 128
     IMG_SIZE = 28
     LOSS_SCALE = 100
 
@@ -117,7 +116,7 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    aae = AdversarialAutoEncoder(IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
+    aae = AdversarialAutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)
     discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM)
 
     # Loss
