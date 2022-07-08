@@ -65,7 +65,9 @@ def train_model(caae, discriminator, train_dl, optim_caae, optim_disc,
             train_gen_loss_tmp = train_gen_loss*n_data/n_processed_data
 
             pbar.set_description(
-                f'NLL Loss: {train_nll_tmp:9.6f} | Disc Loss: {train_disc_loss_tmp:9.6f} | Gen Loss: {train_gen_loss_tmp:9.6f} | {n_processed_data}/{n_data} ')
+                'NLL Loss: {:9.6f} | Disc Loss: {:9.6f} | Gen Loss: {:9.6f} | {}/{} '.\
+                    format(train_nll_tmp, train_disc_loss_tmp,
+                           train_gen_loss_tmp, n_processed_data, n_data))
 
         return train_nll, train_disc_loss, train_gen_loss
 
