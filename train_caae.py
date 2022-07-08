@@ -6,8 +6,6 @@ from torchvision.datasets import MNIST
 from network.caae import ConditionalAdversarialAutoEncoder, Discriminator
 from network.loss import LogLikelihood, DiscriminatorLoss, GeneratorLoss
 
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
-
 
 def train_model(caae, discriminator, train_dl, optim_caae, optim_disc,
                 optim_gen, log_likelihood, disc_loss, gen_loss,
