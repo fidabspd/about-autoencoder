@@ -29,7 +29,7 @@ def train_model(aae, discriminator, train_dl, optim_aae, optim_disc,
             now_batch_len = len(x)
             n_processed_data += now_batch_len
 
-            # adversarial autoencoder
+            # aae
             optim_aae.zero_grad()
             x_hat = aae(x)
             _log_likelihood = log_likelihood(x, x_hat)
@@ -51,7 +51,7 @@ def train_model(aae, discriminator, train_dl, optim_aae, optim_disc,
             train_disc_loss += _disc_loss.item()/n_data
             train_disc_loss_tmp = train_disc_loss*n_data/n_processed_data
 
-            # generator
+            # generator (aae.encoder)
             for _ in range(2):
                 optim_gen.zero_grad()
                 z_fake = aae.encoder(x)
@@ -93,11 +93,11 @@ def main():
 
     IN_DIM = 1*28*28
     HIDDEN_DIM = 64
-    LATENT_DIM = 32
-    DISC_HIDDEN_DIM = 64
-    DISC_OUT_DIM = 128
+    LATENT_DIM = 16
     IMG_SIZE = 28
     LOSS_SCALE = 100
+    DISC_HIDDEN_DIM = 64
+    DISC_OUT_DIM = 128
 
     MNIST_DIR = "./MNIST_DATASET"
     AAE_FILE_PATH = "./model/aae.pt"
@@ -113,7 +113,8 @@ def main():
         transforms.ToTensor()
     ])
     dataset = MNIST(MNIST_DIR, transform=mnist_transform, train=True, download=True)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
     # Model
     aae = AdversarialAutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)

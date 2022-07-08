@@ -13,6 +13,7 @@ class CVAEEncoder(torch.nn.Module):
 
     def forward(self, x, condition):
         x = x.flatten(1)
+        condition = condition.unsqueeze(1)
         cond_emb = self.condition_emb(condition).flatten(1)
         x_c = torch.cat([x, cond_emb], -1)
         x_c = torch.relu(self.linear_in(x_c))
@@ -34,6 +35,7 @@ class CVAEDecoder(torch.nn.Module):
         self.linear_out = torch.nn.Linear(hidden_dim, out_dim)
         
     def forward(self, z, condition):
+        condition = condition.unsqueeze(1)
         cond_emb = self.condition_emb(condition).flatten(1)
         z_c = torch.cat([z, cond_emb], -1)
         z_c = torch.relu(self.linear_in(z_c))

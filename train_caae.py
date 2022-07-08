@@ -25,7 +25,7 @@ def train_model(caae, discriminator, train_dl, optim_caae, optim_disc,
         pbar = tqdm(dl)
         for batch in pbar:
             x, condition = batch
-            x, condition = x.to(device), condition.unsqueeze(1).to(device)
+            x, condition = x.to(device), condition.to(device)
             now_batch_len = len(x)
             n_processed_data += now_batch_len
 
@@ -91,15 +91,15 @@ def main():
     LEARNING_RATE = 0.001
     N_EPOCHS = 20
 
-    COND_EMB_DIM = 16
     IN_DIM = 1*28*28
     HIDDEN_DIM = 64
-    LATENT_DIM = 32
-    DISC_HIDDEN_DIM = 64
-    DISC_OUT_DIM = 128
-    N_CONDITION_LABELS = 10
+    LATENT_DIM = 16
     IMG_SIZE = 28
     LOSS_SCALE = 100
+    COND_EMB_DIM = 16
+    N_CONDITION_LABELS = 10
+    DISC_HIDDEN_DIM = 64
+    DISC_OUT_DIM = 128
 
     MNIST_DIR = "./MNIST_DATASET"
     CAAE_FILE_PATH = "./model/caae.pt"
@@ -114,7 +114,8 @@ def main():
         transforms.ToTensor()
     ])
     dataset = MNIST(MNIST_DIR, transform=mnist_transform, train=True, download=True)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
+    dataloader = torch.utils.data.DataLoader(
+        dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
     # Model
     caae = ConditionalAdversarialAutoEncoder(
