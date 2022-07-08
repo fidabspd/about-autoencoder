@@ -9,11 +9,11 @@ from network.loss import LogLikelihood, DiscriminatorLoss, GeneratorLoss
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 
-def train_model(caae, discriminator, train_dl, optim_aae, optim_disc,
+def train_model(caae, discriminator, train_dl, optim_caae, optim_disc,
                 optim_gen, log_likelihood, disc_loss, gen_loss,
-                n_epochs, device, aae_file_path, discriminator_file_path):
+                n_epochs, device, caae_file_path, discriminator_file_path):
 
-    def train_one_epoch(caae, discriminator, dl, optim_aae, optim_disc,
+    def train_one_epoch(caae, discriminator, dl, optim_caae, optim_disc,
                         optim_gen, log_likelihood, disc_loss, gen_loss, device):
 
         n_data = len(dl.dataset)
@@ -31,13 +31,13 @@ def train_model(caae, discriminator, train_dl, optim_aae, optim_disc,
             now_batch_len = len(x)
             n_processed_data += now_batch_len
 
-            # adversarial autoencoder
-            optim_aae.zero_grad()
+            # caae
+            optim_caae.zero_grad()
             x_hat = caae(x, condition)
             _log_likelihood = log_likelihood(x, x_hat)
             _negative_log_likelihood = -_log_likelihood
             _negative_log_likelihood.backward()
-            optim_aae.step()
+            optim_caae.step()
             train_nll += _negative_log_likelihood.item()/n_data
             train_nll_tmp = train_nll*n_data/n_processed_data
 
@@ -53,7 +53,7 @@ def train_model(caae, discriminator, train_dl, optim_aae, optim_disc,
             train_disc_loss += _disc_loss.item()/n_data
             train_disc_loss_tmp = train_disc_loss*n_data/n_processed_data
 
-            # generator
+            # generator (caae.encoder)
             for _ in range(2):
                 optim_gen.zero_grad()
                 z_fake = caae.encoder(x, condition)
@@ -76,10 +76,10 @@ def train_model(caae, discriminator, train_dl, optim_aae, optim_disc,
 
         print(f'\nEpoch: {epoch+1}/{n_epochs}')
         train_nll, train_disc_loss, train_gen_loss = train_one_epoch(
-            caae, discriminator, train_dl, optim_aae, optim_disc,
+            caae, discriminator, train_dl, optim_caae, optim_disc,
             optim_gen, log_likelihood, disc_loss, gen_loss, device
         )
-        torch.save(caae, aae_file_path)
+        torch.save(caae, caae_file_path)
         torch.save(discriminator, discriminator_file_path)
 
 
@@ -102,11 +102,11 @@ def main():
     LOSS_SCALE = 100
 
     MNIST_DIR = "./MNIST_DATASET"
-    AAE_FILE_PATH = "./model/caae.pt"
+    CAAE_FILE_PATH = "./model/caae.pt"
     DISCRIMINATOR_FILE_PATH = "./model/caae_discriminator.pt"
 
-    if not os.path.exists(os.path.dirname(AAE_FILE_PATH)):
-        os.mkdir(os.path.dirname(AAE_FILE_PATH))
+    if not os.path.exists(os.path.dirname(CAAE_FILE_PATH)):
+        os.mkdir(os.path.dirname(CAAE_FILE_PATH))
     if not os.path.exists(os.path.dirname(DISCRIMINATOR_FILE_PATH)):
         os.mkdir(os.path.dirname(DISCRIMINATOR_FILE_PATH))
 
@@ -127,14 +127,14 @@ def main():
     generator_loss = GeneratorLoss(LOSS_SCALE)
 
     # Optimizer
-    optimizer_aae = torch.optim.Adam(caae.parameters(), lr=LEARNING_RATE)
+    optimizer_caae = torch.optim.Adam(caae.parameters(), lr=LEARNING_RATE)
     optimizer_disc = torch.optim.Adam(discriminator.parameters(), lr=LEARNING_RATE/10)
     optimizer_gen = torch.optim.Adam(caae.encoder.parameters(), lr=LEARNING_RATE)
 
     # Train
-    train_model(caae, discriminator, dataloader, optimizer_aae, optimizer_disc,
+    train_model(caae, discriminator, dataloader, optimizer_caae, optimizer_disc,
                 optimizer_gen, log_likelihood, discriminator_loss, generator_loss,
-                N_EPOCHS, DEVICE, AAE_FILE_PATH, DISCRIMINATOR_FILE_PATH)
+                N_EPOCHS, DEVICE, CAAE_FILE_PATH, DISCRIMINATOR_FILE_PATH)
 
 
 if __name__ == '__main__':
