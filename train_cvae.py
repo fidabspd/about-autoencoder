@@ -76,7 +76,8 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    model = ConditionalVariationalAutoEncoder(COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE)
+    model = ConditionalVariationalAutoEncoder(
+        COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE)
 
     # Loss
     criterion = ELBO(LOSS_SCALE)
