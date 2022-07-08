@@ -42,7 +42,7 @@ class DiscriminatorLoss(torch.nn.Module):
     def __init__(self, scale=1.):
         super().__init__()
         self.scale = scale
-        self.negative_bce_loss = torch.nn.BCELoss()
+        self.bce_loss = torch.nn.BCELoss()
         
     def forward(self, real_disc_probs, fake_disc_probs):
         real_loss = self.bce_loss(real_disc_probs, torch.ones_like(real_disc_probs))
