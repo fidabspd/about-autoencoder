@@ -136,6 +136,6 @@ def main():
                 N_EPOCHS, DEVICE, AAE_FILE_PATH, DISCRIMINATOR_FILE_PATH)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()

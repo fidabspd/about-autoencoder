@@ -85,6 +85,6 @@ def main():
     train_model(model, dataloader, optimizer, criterion, N_EPOCHS, DEVICE, MODEL_FILE_PATH)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()
