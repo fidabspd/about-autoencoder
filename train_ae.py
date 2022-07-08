@@ -52,12 +52,11 @@ def main():
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     BATCH_SIZE = 64
-    LEARNING_RATE = 0.001
+    LEARNING_RATE = 0.0005
     N_EPOCHS = 5
 
-    IN_CH = 1
-    HIDDEN_CH = 16
-    KERNEL_SIZE = 3
+    IN_DIM = 1*28*28
+    HIDDEN_DIM = 64
     LATENT_DIM = 32
     IMG_SIZE = 28
     LOSS_SCALE = 100
@@ -75,8 +74,7 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    model = AutoEncoder(
-        IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
+    model = AutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)
 
     # Loss
     criterion = LogLikelihood(LOSS_SCALE)

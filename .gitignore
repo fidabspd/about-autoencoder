@@ -3,3 +3,4 @@ __pycache__
 MNIST_DATASET/
 *.pt
 Untitled*
+deprecated/

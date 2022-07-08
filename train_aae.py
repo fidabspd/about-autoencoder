@@ -65,7 +65,9 @@ def train_model(aae, discriminator, train_dl, optim_aae, optim_disc,
             train_gen_loss_tmp = train_gen_loss*n_data/n_processed_data
 
             pbar.set_description(
-                f'NLL Loss: {train_nll_tmp:9.6f} | Disc Loss: {train_disc_loss_tmp:9.6f} | Gen Loss: {train_gen_loss_tmp:9.6f} | {n_processed_data}/{n_data} ')
+                'NLL Loss: {:9.6f} | Disc Loss: {:9.6f} | Gen Loss: {:9.6f} | {}/{} '.\
+                    format(train_nll_tmp, train_disc_loss_tmp,
+                           train_gen_loss_tmp, n_processed_data, n_data))
 
         return train_nll, train_disc_loss, train_gen_loss
 
@@ -91,9 +93,8 @@ def main():
     LEARNING_RATE = 0.001
     N_EPOCHS = 20
 
-    IN_CH = 1
-    HIDDEN_CH = 16
-    KERNEL_SIZE = 3
+    IN_DIM = 1*28*28
+    HIDDEN_DIM = 64
     LATENT_DIM = 32
     DISC_HIDDEN_DIM = 64
     DISC_OUT_DIM = 128
@@ -103,6 +104,7 @@ def main():
     MNIST_DIR = "./MNIST_DATASET"
     AAE_FILE_PATH = "./model/aae.pt"
     DISCRIMINATOR_FILE_PATH = "./model/aae_discriminator.pt"
+
 
     if not os.path.exists(os.path.dirname(AAE_FILE_PATH)):
         os.mkdir(os.path.dirname(AAE_FILE_PATH))
@@ -116,8 +118,7 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    aae = AdversarialAutoEncoder(
-        IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, IMG_SIZE)
+    aae = AdversarialAutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)
     discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM)
 
     # Loss

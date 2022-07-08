@@ -3,66 +3,44 @@ import torch
 
 class AAEEncoder(torch.nn.Module):
     
-    def __init__(self, in_ch, hidden_ch, kernel_size, latent_dim, img_size):
+    def __init__(self, in_dim, hidden_dim, latent_dim):
         super().__init__()
-        self.latent_dim = latent_dim
-        self.conv0 = torch.nn.Conv2d(in_ch, hidden_ch, kernel_size=kernel_size, padding=kernel_size//2)
-        self.conv1 = torch.nn.Conv2d(hidden_ch, hidden_ch*2, kernel_size=kernel_size, padding=kernel_size//2)
-        self.linear_out = torch.nn.Linear(hidden_ch*2*img_size*img_size, latent_dim)
+        self.linear_in = torch.nn.Linear(in_dim, hidden_dim)
+        self.linear_hidden = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.linear_out = torch.nn.Linear(hidden_dim, latent_dim)
 
     def forward(self, x):
-        check = torch.sum(torch.isnan(x)).item()
-        if check > 0:
-            print('\n', check, x)
-            raise ValueError("There is nan.")
-
-        x = torch.relu(self.conv0(x))
-        check = torch.sum(torch.isnan(x)).item()
-        if check > 0:
-            print('\n', check, x)
-            raise ValueError("There is nan.")
-
-        x = torch.relu(self.conv1(x)).flatten(1)
-        check = torch.sum(torch.isnan(x)).item()
-        if check > 0:
-            print('\n', check, x)
-            raise ValueError("There is nan.")
-
+        x = x.flatten(1)
+        x = torch.relu(self.linear_in(x))
+        x = torch.relu(self.linear_hidden(x))
         z = self.linear_out(x)
-        check = torch.sum(torch.isnan(z)).item()
-        if check > 0:
-            print('\n', check, z)
-            raise ValueError("There is nan.")
-
         return z
     
     
 class AAEDecoder(torch.nn.Module):
     
-    def __init__(self, latent_dim, hidden_ch, kernel_size, out_ch, img_size):
+    def __init__(self, latent_dim, hidden_dim, out_dim, img_size):
         super().__init__()
         self.latent_dim = latent_dim
-        self.hidden_ch = hidden_ch
         self.img_size = img_size
-        self.linear_in = torch.nn.Linear(latent_dim, hidden_ch//2*img_size*img_size)
-        self.convt0 = torch.nn.ConvTranspose2d(hidden_ch//2, hidden_ch, kernel_size=kernel_size, padding=kernel_size//2)
-        self.convt_out = torch.nn.ConvTranspose2d(hidden_ch, out_ch, kernel_size=kernel_size, padding=kernel_size//2)
+        self.linear_in = torch.nn.Linear(latent_dim, hidden_dim)
+        self.linear_hidden = torch.nn.Linear(hidden_dim, hidden_dim)
+        self.linear_out = torch.nn.Linear(hidden_dim, out_dim)
         
     def forward(self, z):
         z = torch.relu(self.linear_in(z))
-        z = z.reshape((-1, self.hidden_ch//2, self.img_size, self.img_size))
-        z = torch.relu(self.convt0(z))
-        x_hat = torch.sigmoid(self.convt_out(z))
+        z = torch.relu(self.linear_hidden(z))
+        x_hat = torch.sigmoid(self.linear_out(z))
+        x_hat = x_hat.reshape((-1, 1, self.img_size, self.img_size))
         return x_hat
 
 
 class AdversarialAutoEncoder(torch.nn.Module):
     
-    def __init__(self, in_ch, latent_dim, hidden_ch, kernel_size, img_size):
+    def __init__(self, in_dim, latent_dim, hidden_dim, img_size):
         super().__init__()
-        self.latent_dim = latent_dim
-        self.encoder = AAEEncoder(in_ch, hidden_ch, kernel_size, latent_dim, img_size)
-        self.decoder = AAEDecoder(latent_dim, hidden_ch, kernel_size, in_ch, img_size)
+        self.encoder = AAEEncoder(in_dim, hidden_dim, latent_dim)
+        self.decoder = AAEDecoder(latent_dim, hidden_dim, in_dim, img_size)
         
     def forward(self, x):
         z = self.encoder(x)

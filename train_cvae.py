@@ -52,13 +52,12 @@ def main():
     DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     BATCH_SIZE = 64
-    LEARNING_RATE = 0.001
+    LEARNING_RATE = 0.0005
     N_EPOCHS = 5
 
     COND_EMB_DIM = 16
-    IN_CH = 1
-    HIDDEN_CH = 16
-    KERNEL_SIZE = 3
+    IN_DIM = 1*28*28
+    HIDDEN_DIM = 64
     LATENT_DIM = 32
     N_CONDITION_LABELS = 10
     IMG_SIZE = 28
@@ -77,8 +76,7 @@ def main():
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
 
     # Model
-    model = ConditionalVariationalAutoEncoder(
-        COND_EMB_DIM, IN_CH, LATENT_DIM, HIDDEN_CH, KERNEL_SIZE, N_CONDITION_LABELS, IMG_SIZE)
+    model = ConditionalVariationalAutoEncoder(COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE)
 
     # Loss
     criterion = ELBO(LOSS_SCALE)
