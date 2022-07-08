@@ -23,7 +23,7 @@ def generate(generator, image_size, condition=None):
     if condition is None:
         gen_result = generator(z)
     else:
-        condition = torch.LongTensor([[condition]]).to(device)
+        condition = torch.LongTensor([condition]).to(device)
         gen_result = generator(z, condition)
     gen_result = gen_result.detach().cpu().numpy().reshape(image_size, image_size)
 
