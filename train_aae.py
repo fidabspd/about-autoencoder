@@ -102,7 +102,7 @@ def main():
 
     MNIST_DIR = "./MNIST_DATASET"
     AAE_FILE_PATH = "./model/aae.pt"
-    DISCRIMINATOR_FILE_PATH = "./model/discriminator.pt"
+    DISCRIMINATOR_FILE_PATH = "./model/aae_discriminator.pt"
 
     if not os.path.exists(os.path.dirname(AAE_FILE_PATH)):
         os.mkdir(os.path.dirname(AAE_FILE_PATH))
