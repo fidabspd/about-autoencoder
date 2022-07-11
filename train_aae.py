@@ -98,6 +98,7 @@ def main():
     LOSS_SCALE = 100
     DISC_HIDDEN_DIM = 64
     DISC_OUT_DIM = 128
+    DROPOUT_RATIO = 0.1
 
     MNIST_DIR = "./MNIST_DATASET"
     AAE_FILE_PATH = "./model/aae.pt"
@@ -117,8 +118,8 @@ def main():
         dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
     # Model
-    aae = AdversarialAutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)
-    discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM)
+    aae = AdversarialAutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE, DROPOUT_RATIO)
+    discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM, DROPOUT_RATIO)
 
     # Loss
     log_likelihood = LogLikelihood(LOSS_SCALE)

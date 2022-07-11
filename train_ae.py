@@ -60,6 +60,7 @@ def main():
     LATENT_DIM = 16
     IMG_SIZE = 28
     LOSS_SCALE = 100
+    DROPOUT_RATIO = 0.1
 
     MNIST_DIR = "./MNIST_DATASET"
     MODEL_FILE_PATH = "./model/ae.pt"
@@ -75,7 +76,7 @@ def main():
         dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
     # Model
-    model = AutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE)
+    model = AutoEncoder(IN_DIM, LATENT_DIM, HIDDEN_DIM, IMG_SIZE, DROPOUT_RATIO)
 
     # Loss
     criterion = LogLikelihood(LOSS_SCALE)

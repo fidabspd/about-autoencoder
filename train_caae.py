@@ -100,6 +100,7 @@ def main():
     N_CONDITION_LABELS = 10
     DISC_HIDDEN_DIM = 64
     DISC_OUT_DIM = 128
+    DROPOUT_RATIO = 0.1
 
     MNIST_DIR = "./MNIST_DATASET"
     CAAE_FILE_PATH = "./model/caae.pt"
@@ -119,8 +120,8 @@ def main():
 
     # Model
     caae = ConditionalAdversarialAutoEncoder(
-        COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE)
-    discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM)
+        COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE, DROPOUT_RATIO)
+    discriminator = Discriminator(LATENT_DIM, DISC_HIDDEN_DIM, DISC_OUT_DIM, DROPOUT_RATIO)
 
     # Loss
     log_likelihood = LogLikelihood(LOSS_SCALE)

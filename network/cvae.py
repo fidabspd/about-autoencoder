@@ -3,21 +3,22 @@ import torch
 
 class CVAEEncoder(torch.nn.Module):
     
-    def __init__(self, cond_emb_dim, in_dim, hidden_dim, latent_dim, n_condition_labels):
+    def __init__(self, cond_emb_dim, in_dim, hidden_dim, latent_dim, n_condition_labels, dropout_ratio=0.1):
         super().__init__()
         self.latent_dim = latent_dim
         self.condition_emb = torch.nn.Embedding(n_condition_labels, cond_emb_dim)
         self.linear_in = torch.nn.Linear(in_dim+cond_emb_dim, hidden_dim)
         self.linear_hidden = torch.nn.Linear(hidden_dim, hidden_dim)
         self.linear_out = torch.nn.Linear(hidden_dim, latent_dim*2)
+        self.dropout = torch.nn.Dropout(dropout_ratio)
 
     def forward(self, x, condition):
         x = x.flatten(1)
         condition = condition.unsqueeze(1)
         cond_emb = self.condition_emb(condition).flatten(1)
         x_c = torch.cat([x, cond_emb], -1)
-        x_c = torch.relu(self.linear_in(x_c))
-        x_c = torch.relu(self.linear_hidden(x_c))
+        x_c = self.dropout(torch.nn.functional.elu(self.linear_in(x_c)))
+        x_c = self.dropout(torch.tanh(self.linear_hidden(x_c)))
         x_c = self.linear_out(x_c)
         mu, sigma = x_c[:, :self.latent_dim], 1e-6+torch.nn.functional.softplus(x_c[:, self.latent_dim:])
         return mu, sigma
@@ -25,7 +26,7 @@ class CVAEEncoder(torch.nn.Module):
     
 class CVAEDecoder(torch.nn.Module):
     
-    def __init__(self, cond_emb_dim, latent_dim, hidden_dim, out_dim, n_condition_labels, img_size):
+    def __init__(self, cond_emb_dim, latent_dim, hidden_dim, out_dim, n_condition_labels, img_size, dropout_ratio=0.1):
         super().__init__()
         self.latent_dim = latent_dim
         self.img_size = img_size
@@ -33,13 +34,14 @@ class CVAEDecoder(torch.nn.Module):
         self.linear_in = torch.nn.Linear(latent_dim+cond_emb_dim, hidden_dim)
         self.linear_hidden = torch.nn.Linear(hidden_dim, hidden_dim)
         self.linear_out = torch.nn.Linear(hidden_dim, out_dim)
+        self.dropout = torch.nn.Dropout(dropout_ratio)
         
     def forward(self, z, condition):
         condition = condition.unsqueeze(1)
         cond_emb = self.condition_emb(condition).flatten(1)
         z_c = torch.cat([z, cond_emb], -1)
-        z_c = torch.relu(self.linear_in(z_c))
-        z_c = torch.relu(self.linear_hidden(z_c))
+        z_c = self.dropout(torch.tanh(self.linear_in(z_c)))
+        z_c = self.dropout(torch.nn.functional.elu(self.linear_hidden(z_c)))
         x_hat = torch.sigmoid(self.linear_out(z_c))
         x_hat = x_hat.reshape((-1, 1, self.img_size, self.img_size))
         return x_hat
@@ -47,10 +49,10 @@ class CVAEDecoder(torch.nn.Module):
 
 class ConditionalVariationalAutoEncoder(torch.nn.Module):
     
-    def __init__(self, cond_emb_dim, in_dim, latent_dim, hidden_dim, n_condition_labels, img_size):
+    def __init__(self, cond_emb_dim, in_dim, latent_dim, hidden_dim, n_condition_labels, img_size, dropout_ratio=0.1):
         super().__init__()
-        self.encoder = CVAEEncoder(cond_emb_dim, in_dim, hidden_dim, latent_dim, n_condition_labels)
-        self.decoder = CVAEDecoder(cond_emb_dim, latent_dim, hidden_dim, in_dim, n_condition_labels, img_size)
+        self.encoder = CVAEEncoder(cond_emb_dim, in_dim, hidden_dim, latent_dim, n_condition_labels, dropout_ratio)
+        self.decoder = CVAEDecoder(cond_emb_dim, latent_dim, hidden_dim, in_dim, n_condition_labels, img_size, dropout_ratio)
 
     def reparameterize(self, mu, sigma):
         epsilon = torch.randn_like(mu).to(mu.device)

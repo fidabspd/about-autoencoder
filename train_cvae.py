@@ -62,6 +62,7 @@ def main():
     LOSS_SCALE = 100
     COND_EMB_DIM = 16
     N_CONDITION_LABELS = 10
+    DROPOUT_RATIO = 0.1
 
     MNIST_DIR = "./MNIST_DATASET"
     MODEL_FILE_PATH = "./model/cvae.pt"
@@ -78,7 +79,7 @@ def main():
 
     # Model
     model = ConditionalVariationalAutoEncoder(
-        COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE)
+        COND_EMB_DIM, IN_DIM, LATENT_DIM, HIDDEN_DIM, N_CONDITION_LABELS, IMG_SIZE, DROPOUT_RATIO)
 
     # Loss
     criterion = ELBO(LOSS_SCALE)
